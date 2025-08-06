@@ -17,7 +17,7 @@ router.post("/login", async (req, res) => {
     // check email and password
     if (!User || !(await bcrypt.compare(password, User.password)))
       return res.send("invalide credentials").status(401);
-    const token = jwt.sign({ Id: User._id, role: User.role }, SECRET_KEY, {
+    const token = jwt.sign({ Id: User._id, role: User.Role }, SECRET_KEY, {
       expiresIn: EXPIRES_IN,
     });
     res.json({ token });
