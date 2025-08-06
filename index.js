@@ -1,5 +1,6 @@
 const express = require("express");
 const app = express();
+const jwt = require("jsonwebtoken");
 require("dotenv").config();
 const mongoose = require("mongoose");
 const userRouters = require("./routes/user");
@@ -8,7 +9,6 @@ const userRouters = require("./routes/user");
 const PORT = process.env.PORT || 3000;
 const MONGODB_URL = process.env.MONGODB_URL;
 const API_URL = process.env.API;
-
 // middlewear
 app.use(express.json());
 
@@ -17,9 +17,9 @@ app.use(`${API_URL}/users`, userRouters);
 
 // connects to db
 mongoose
-  .connect(MONGODB_URL,{
-  dbName: 'AgroShop',
-})
+  .connect(MONGODB_URL, {
+    dbName: "AgroShop",
+  })
   .then(() => {
     console.log("connected to DB");
   })
