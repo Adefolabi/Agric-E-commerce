@@ -12,6 +12,7 @@ const userSchema = new mongoose.Schema({
   email: {
     type: String,
     required: true,
+    unique:true
   },
   phoneNo: {
     type: String,
@@ -25,13 +26,8 @@ const userSchema = new mongoose.Schema({
     type: String,
     enum: ["Admin", "Farmer", "User"],
     default: "User",
-  },
-  createdAt: {
-    type: String,
-    required: true,
-  },
-  UpdatedAt:String,
-});
+  }
+},{ timestamps: true });
 
 const Users = mongoose.model("User", userSchema);
 

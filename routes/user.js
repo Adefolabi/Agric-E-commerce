@@ -17,7 +17,7 @@ router.post("/login", async (req, res) => {
     // check email and password
     if (!User || !(await bcrypt.compare(password, User.password)))
       return res.send("invalide credentials").status(401);
-    const token = jwt.sign({ Id: User._id, role: User.Role }, SECRET_KEY, {
+    const token = jwt.sign({ Id: User._id, role: User.role }, SECRET_KEY, {
       expiresIn: EXPIRES_IN,
     });
     res.json({ token });
@@ -37,7 +37,6 @@ router.post("/", async (req, res) => {
       email: req.body.email,
       password: hashedpassword,
       role: req.body.role,
-      createdAt: new Date().toISOString(),
     });
     if (!User) {
       return res.send("invalid User ").status(400);
@@ -45,6 +44,13 @@ router.post("/", async (req, res) => {
     User = await User.save();
     res.json({ User }).status(201);
   } catch (error) {
+    if (error.code === 11000) {
+      console.log("duplicate category");
+      res.status(400).json({ error: "category already exists" });
+    } else {
+      console.error(error);
+      res.status(500).json({ error: "Server error" });
+    }
     res.json({ message: error }).status(500);
   }
 });
@@ -75,13 +81,12 @@ router.put("/:id", AUTH, Admin, async (req, res) => {
         email: req.body.email,
         password: req.body.password,
         role: req.body.role,
-        UpdatedAt: new Date().toISOString(),
       },
       { new: true }
     );
     res.send(User).status(201);
   } catch (error) {
-    res.status(500).json({ error: "Failed to delete User" });
+    res.status(500).json({ error: "Failed to update User" });
   }
 });
 
