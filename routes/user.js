@@ -3,7 +3,7 @@ const router = express.Router();
 const Users = require("../models/users");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
-const { hashFunction } = require("../utils");
+const { hashFunction, searchFunction } = require("../utils");
 const AUTH = require("../middleware/Auth");
 const Admin = require("../middleware/Admin");
 const SECRET_KEY = process.env.SECRET_KEY;
@@ -60,7 +60,21 @@ router.get("/", AUTH, Admin, async (req, res) => {
   if (!user) return res.send("no user available").status(404);
   res.send(user).status(200);
 });
-
+// search users
+router.get("/search",AUTH,Admin, async (req, res) => {
+  try {
+    const { search } = req.query;
+      let query = {};
+    console.log(search);
+    if (search)
+      query = await searchFunction(search);    
+    const user = await Users.find(query);
+    res.status(200).json(user);
+  } catch (error) {
+    console.error("Error fetching product:", error);
+    res.status(500).send("Server error");
+  }
+});
 // get specific user
 router.get("/:id", AUTH, Admin, async (req, res) => {
   const user = await Users.findById(req.params.id).select("-password");

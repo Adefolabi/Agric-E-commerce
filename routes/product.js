@@ -4,6 +4,7 @@ const mongoose = require("mongoose");
 const AUTH = require("../middleware/Auth");
 const Admin = require("../middleware/Admin");
 const Products = require("../models/Products");
+const { searchFunction } = require("../utils");
 
 // create product
 router.post("/", AUTH, Admin, async (req, res) => {
@@ -35,6 +36,45 @@ router.get("/", AUTH, async (req, res) => {
   if (!product.length)
     return res.json({ message: "No product currently" }).status(200);
   res.json({ product }).status(200);
+});
+
+// search product
+router.get("/search", async (req, res) => {
+  try {
+    const { search, sort, category, subcategory, inStock, minPrice, maxPrice } =
+      req.query;
+    console.log(search);
+    let query = {};
+    console.log(query);
+    console.log(search);
+    if (search) query = await searchFunction(search);
+    // category filter
+    if (category) query.category = category;
+
+    //  Subcategory filter
+    if (subcategory) query.subcategory = subcategory;
+
+    //  Price range filter
+    if (minPrice || maxPrice) {
+      query.price = {};
+      if (minPrice) query.price.$gte = parseFloat(minPrice);
+      if (maxPrice) query.price.$lte = parseFloat(maxPrice);
+    }
+
+    // In-stock filter
+    if (inStock === "true") {
+      query.inventory = { $gt: 0 };
+    }
+
+    let product = await Products.find(query)
+      .populate("category", "name")
+      .populate("subcategory", "name")
+      .sort(sort);
+    res.status(200).json(product);
+  } catch (error) {
+    console.error("Error fetching product:", error);
+    res.status(500).send("Server error");
+  }
 });
 
 // get single product

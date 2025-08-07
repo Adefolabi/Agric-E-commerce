@@ -6,4 +6,11 @@ const hashFunction = async (password) => {
   return hashPassword;
 };
 
-module.exports = { hashFunction };
+const searchFunction = async (search ,query) => {
+  const regex = new RegExp(search, "i");
+  return (query = { $or: [{ name: regex },{ firstName: regex },{ lastName: regex }, { email: regex },{ description: regex }] });
+};
+
+
+
+module.exports = { hashFunction ,searchFunction};
