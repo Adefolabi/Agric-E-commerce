@@ -6,6 +6,7 @@ const mongoose = require("mongoose");
 const userRouters = require("./routes/user");
 const categoryRouters = require("./routes/category");
 const subcategoryRouters = require("./routes/subcategory");
+const productRouters = require("./routes/product");
 
 // enviromental variables
 const PORT = process.env.PORT || 3000;
@@ -17,7 +18,8 @@ app.use(express.json());
 // routes
 app.use(`${API_URL}/users`, userRouters);
 app.use(`${API_URL}/categorys`, categoryRouters);
-app.use(`${API_URL}/subcategories`, subcategoryRouters);
+app.use(`${API_URL}/subcategory`, subcategoryRouters);
+app.use(`${API_URL}/products`, productRouters);
 
 // connects to db
 mongoose

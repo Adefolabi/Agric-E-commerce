@@ -13,7 +13,7 @@ router.post("/", AUTH, Admin, async (req, res) => {
       description: req.body.description,
     });
     category = await category.save();
-    res.json(category).status(200);
+    res.status(200).json(category);
   } catch (error) {
     if (error.code === 11000) {
       console.log("duplicate category");
@@ -30,21 +30,27 @@ router.get("/", AUTH, async (req, res) => {
   const categories = await Category.find();
   if (!categories.length)
     return res.json({ message: "No categories currently" }).status(200);
-  res.json({ categories }).status(200);
+  res.status(200).json({ categories });
 });
 
 // get single categories
 router.get("/:id", AUTH, async (req, res) => {
-  const category = await Category.findOne({ id: req.params._id });
+  if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+    return res.status(400).send("Invalid product ID format");
+  }
+  const category = await Category.findById(req.params._id);
   if (!category) return res.send("no category with that id ").status(404);
-  res.send(category).status(200);
+  res.status(200).send(category);
 });
 
 // update
 
 router.put("/:id", AUTH, Admin, async (req, res) => {
   try {
-    const categories = await Category.findByIdAndUpdate(
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).send("Invalid product ID format");
+    }
+    const category = await Category.findByIdAndUpdate(
       req.params.id,
       {
         name: req.body.name,
@@ -53,7 +59,7 @@ router.put("/:id", AUTH, Admin, async (req, res) => {
       },
       { new: true }
     );
-    res.json({ categories }).status(200);
+    res.status(200).json({ category });
   } catch (error) {
     res.status(500).json({ error: "Failed to update User" });
   }
@@ -62,7 +68,14 @@ router.put("/:id", AUTH, Admin, async (req, res) => {
 // delete categories
 router.delete("/:id", AUTH, Admin, async (req, res) => {
   try {
-    await Category.findByIdAndDelete(req.params.id);
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).send("Invalid product ID format");
+    }
+    const deletedcategory = await deletedCategory.findByIdAndDelete(
+      req.params.id
+    );
+    if (!deletedcategory)
+      return res.status(404).json({ error: "SubCategory not found" });
     res.status(200).json({ message: "categories  deleted successfully" });
   } catch (err) {
     console.error(err);

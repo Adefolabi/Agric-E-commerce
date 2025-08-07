@@ -13,7 +13,7 @@ router.post("/", AUTH, Admin, async (req, res) => {
       category: req.body.category,
     });
     subCategory = await subCategory.save();
-    res.json(subCategory).status(200);
+    res.status(201).json(subCategory);
   } catch (error) {
     if (error.code === 11000) {
       console.log("duplicate subCategory");
@@ -30,21 +30,27 @@ router.get("/", AUTH, async (req, res) => {
   const subcategories = await SubCategory.find();
   if (!subcategories.length)
     return res.json({ message: "No subcategories currently" }).status(200);
-  res.json({ subcategories }).status(200);
+  res.status(200).json({ subcategories });
 });
 
 // get single subcategories
 router.get("/:id", AUTH, async (req, res) => {
-  const subCategory = await SubCategory.findOne({ id: req.params._id });
+  if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+    return res.status(400).send("Invalid product ID format");
+  }
+  const subCategory = await SubCategory.findById(req.params.id);
   if (!subCategory) return res.send("no subCategory with that id ").status(404);
-  res.send(subCategory).status(200);
+  res.status(200).send(subCategory);
 });
 
 // update
 
 router.put("/:id", AUTH, Admin, async (req, res) => {
   try {
-    const subcategories = await SubCategory.findByIdAndUpdate(
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).send("Invalid product ID format");
+    }
+    const subcategory = await SubCategory.findByIdAndUpdate(
       req.params.id,
       {
         name: req.body.name,
@@ -53,7 +59,7 @@ router.put("/:id", AUTH, Admin, async (req, res) => {
       },
       { new: true }
     );
-    res.json({ subcategories }).status(200);
+    res.status(200).json({ subcategory });
   } catch (error) {
     res.status(500).json({ error: "Failed to update User" });
   }
@@ -62,11 +68,21 @@ router.put("/:id", AUTH, Admin, async (req, res) => {
 // delete subcategories
 router.delete("/:id", AUTH, Admin, async (req, res) => {
   try {
-    await SubCategory.findByIdAndDelete(req.params.id);
-    res.status(200).json({ message: "subcategories  deleted successfully" });
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).send("Invalid product ID format");
+    }
+    const deletedSubCategory = await SubCategory.findByIdAndDelete(
+      req.params.id
+    );
+
+    if (!deletedSubCategory) {
+      return res.status(404).json({ error: "SubCategory not found" });
+    }
+
+    res.status(200).json({ message: "SubCategory deleted successfully" });
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Failed to delete subCategory " });
+    console.error("Delete error:", err);
+    res.status(500).json({ error: "Failed to delete SubCategory" });
   }
 });
 
