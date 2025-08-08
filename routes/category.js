@@ -2,10 +2,15 @@ const express = require("express");
 const router = express.Router();
 const AUTH = require("../middleware/Auth");
 const Admin = require("../middleware/Admin");
-const Category = require("../models/categories");
+const {
+  Category,
+  validateCategory,
+  validateUpdateCategory,
+} = require("../models/categories");
+const validate = require("../middleware/Validate");
 
 // create categories
-router.post("/", AUTH, Admin, async (req, res) => {
+router.post("/", AUTH, Admin, validate(validateCategory), async (req, res) => {
   try {
     let category = new Category({
       name: req.body.name,
@@ -45,25 +50,31 @@ router.get("/:id", AUTH, async (req, res) => {
 
 // update
 
-router.put("/:id", AUTH, Admin, async (req, res) => {
-  try {
-    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
-      return res.status(400).send("Invalid product ID format");
+router.put(
+  "/:id",
+  AUTH,
+  Admin,
+  validate(validateUpdateCategory),
+  async (req, res) => {
+    try {
+      if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+        return res.status(400).send("Invalid product ID format");
+      }
+      const category = await Category.findByIdAndUpdate(
+        req.params.id,
+        {
+          name: req.body.name,
+          slug: req.body.slug,
+          description: req.body.description,
+        },
+        { new: true }
+      );
+      res.status(200).json({ category });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to update User" });
     }
-    const category = await Category.findByIdAndUpdate(
-      req.params.id,
-      {
-        name: req.body.name,
-        slug: req.body.slug,
-        description: req.body.description,
-      },
-      { new: true }
-    );
-    res.status(200).json({ category });
-  } catch (error) {
-    res.status(500).json({ error: "Failed to update User" });
   }
-});
+);
 
 // delete categories
 router.delete("/:id", AUTH, Admin, async (req, res) => {
@@ -71,9 +82,7 @@ router.delete("/:id", AUTH, Admin, async (req, res) => {
     if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
       return res.status(400).send("Invalid product ID format");
     }
-    const deletedcategory = await deletedCategory.findByIdAndDelete(
-      req.params.id
-    );
+    const deletedcategory = await Category.findByIdAndDelete(req.params.id);
     if (!deletedcategory)
       return res.status(404).json({ error: "SubCategory not found" });
     res.status(200).json({ message: "categories  deleted successfully" });

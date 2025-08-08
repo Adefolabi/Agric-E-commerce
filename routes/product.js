@@ -3,11 +3,15 @@ const router = express.Router();
 const mongoose = require("mongoose");
 const AUTH = require("../middleware/Auth");
 const Admin = require("../middleware/Admin");
-const Products = require("../models/Products");
+const {
+  Products,
+  validateProduct,
+  validateUpdateProduct,
+} = require("../models/Products");
 const { searchFunction } = require("../utils");
-
+const validate = require("../middleware/Validate");
 // create product
-router.post("/", AUTH, Admin, async (req, res) => {
+router.post("/", AUTH, Admin, validate(validateProduct), async (req, res) => {
   try {
     let product = new Products({
       name: req.body.name,
@@ -98,24 +102,30 @@ router.get("/:id", AUTH, async (req, res) => {
 
 // update
 
-router.put("/:id", AUTH, Admin, async (req, res) => {
-  try {
-    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
-      return res.status(400).send("Invalid product ID format");
+router.put(
+  "/:id",
+  AUTH,
+  Admin,
+  validate(validateUpdateProduct),
+  async (req, res) => {
+    try {
+      if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+        return res.status(400).send("Invalid product ID format");
+      }
+      const product = await Products.findByIdAndUpdate(
+        req.params.id,
+        {
+          price: req.body.price,
+          inventory: req.body.inventory,
+        },
+        { new: true }
+      );
+      res.json({ product }).status(200);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to update User" });
     }
-    const product = await Products.findByIdAndUpdate(
-      req.params.id,
-      {
-        price: req.body.price,
-        inventory: req.body.inventory,
-      },
-      { new: true }
-    );
-    res.json({ product }).status(200);
-  } catch (error) {
-    res.status(500).json({ error: "Failed to update User" });
   }
-});
+);
 
 // delete product
 router.delete("/:id", AUTH, Admin, async (req, res) => {

@@ -1,11 +1,12 @@
 const express = require("express");
 const router = express.Router();
-const Users = require("../models/users");
+const { Users, validateUser, validateUpdateUser } = require("../models/users");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 const { hashFunction, searchFunction } = require("../utils");
 const AUTH = require("../middleware/Auth");
 const Admin = require("../middleware/Admin");
+const validate = require("../middleware/Validate");
 const SECRET_KEY = process.env.SECRET_KEY;
 const EXPIRES_IN = process.env.EXPIRES_IN;
 
@@ -27,7 +28,7 @@ router.post("/login", async (req, res) => {
   }
 });
 // create users
-router.post("/", async (req, res) => {
+router.post("/", validate(validateUser), async (req, res) => {
   try {
     const hashedPassword = await hashFunction(req.body.password);
 
@@ -61,13 +62,12 @@ router.get("/", AUTH, Admin, async (req, res) => {
   res.send(user).status(200);
 });
 // search users
-router.get("/search",AUTH,Admin, async (req, res) => {
+router.get("/search", AUTH, Admin, async (req, res) => {
   try {
     const { search } = req.query;
-      let query = {};
+    let query = {};
     console.log(search);
-    if (search)
-      query = await searchFunction(search);    
+    if (search) query = await searchFunction(search);
     const user = await Users.find(query);
     res.status(200).json(user);
   } catch (error) {
@@ -85,34 +85,40 @@ router.get("/:id", AUTH, Admin, async (req, res) => {
 });
 
 // update user
-router.put("/:id", AUTH, Admin, async (req, res) => {
-  try {
-    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
-      return res.status(400).send("Invalid product ID format");
-    }
-    const user = await Users.findByIdAndUpdate(
-      req.params.id,
-      {
-        firstName: req.body.firstName,
-        lastName: req.body.lastName,
-        phoneNo: req.body.phoneNo,
-        email: req.body.email,
-        password: req.body.password,
-        role: req.body.role,
-      },
-      { new: true }
-    );
+router.put(
+  "/:id",
+  AUTH,
+  Admin,
+  validate(validateUpdateUser),
+  async (req, res) => {
+    try {
+      if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+        return res.status(400).send("Invalid product ID format");
+      }
+      const user = await Users.findByIdAndUpdate(
+        req.params.id,
+        {
+          firstName: req.body.firstName,
+          lastName: req.body.lastName,
+          phoneNo: req.body.phoneNo,
+          email: req.body.email,
+          password: req.body.password,
+          role: req.body.role,
+        },
+        { new: true }
+      );
 
-    if (!user) {
-      return res.status(404).send("User not found");
-    }
+      if (!user) {
+        return res.status(404).send("User not found");
+      }
 
-    res.status(200).send(user);
-  } catch (error) {
-    console.error("Update error:", error);
-    res.status(500).json({ error: "Failed to update user" });
+      res.status(200).send(user);
+    } catch (error) {
+      console.error("Update error:", error);
+      res.status(500).json({ error: "Failed to update user" });
+    }
   }
-});
+);
 
 // delete user
 router.delete("/:id", AUTH, Admin, async (req, res) => {
