@@ -15,6 +15,7 @@ const AUTH = async (req, res, next) => {
     const token = authHeader.split(" ")[1];
     const verified = jwt.verify(token, process.env.SECRET_KEY);
     if (!verified) return res.json({message:"access granted"}).status(500);
+    console.log(verified.Id)
     req.user = verified;
     next();
   } catch (error) {
