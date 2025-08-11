@@ -10,6 +10,7 @@ const {
   updateUser,
   deleteUser,
   getUser,
+  updateUserRoleStatus,
 } = require("../controllers/user");
 const {
   validateProduct,
@@ -44,7 +45,7 @@ const {
   validateSubcategory,
 } = require("../models/Subcategories");
 const { dashboardOverview } = require("../controllers/admin-dashboard");
-const { checkout } = require("../controllers/order");
+const { checkout, getAllOrders } = require("../controllers/order");
 
 // DASHBOARD OVERVIEW
 router.get("/dashboard", AUTH, Admin, dashboardOverview);
@@ -60,7 +61,24 @@ router.get("/user/:id", AUTH, Admin, getSingleUser);
 router.put("/user/:id", AUTH, Admin, validate(validateUpdateUser), updateUser);
 // delete user
 router.delete("/user/:id", AUTH, Admin, deleteUser);
-
+// modify user role
+router.put(
+  "/role/:id",
+  AUTH,
+  Admin,
+  validate(validateUpdateUser),
+  updateUserRoleStatus
+);
+// modify user status
+router.put(
+  "/status/:id",
+  AUTH,
+  Admin,
+  validate(validateUpdateUser),
+  updateUserRoleStatus
+);
+// ORDER MANAGEMENT
+router.get("/:id", AUTH, Admin, getAllOrders);
 
 // PRODUCT MANAGEMENT
 // create product
@@ -88,8 +106,6 @@ router.put(
 // delete product
 router.delete("/product/:id", AUTH, Admin, deleteProduct);
 
-
-
 // CATEGORY MANAGEMENT
 // create categories
 router.post(
@@ -109,8 +125,6 @@ router.put(
 );
 // delete categories
 router.delete("/category/:id", AUTH, Admin, deleteCategory);
-
-
 
 // SUBCATEGORY MANAGEMENT
 // create subcategories

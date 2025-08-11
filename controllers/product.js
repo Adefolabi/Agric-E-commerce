@@ -122,6 +122,103 @@ const deleteProduct = async (req, res) => {
     res.status(500).json({ error: "Failed to delete product " });
   }
 };
+
+// farmer controllers
+const createFarmerProduct = async (req, res) => {
+  try {
+    let product = new Products({
+      name: req.body.name,
+      category: req.body.category,
+      subcategory: req.body.subcategory,
+      subcategory: req.body.subcategory,
+      price: req.body.price,
+      inventory: req.body.inventory,
+      description: req.body.description,
+      farmerId: req.user._id,
+    });
+    product = await product.save();
+    res.json(product).status(200);
+  } catch (error) {
+    if (error.code === 11000) {
+      console.log("duplicate product");
+      res.status(400).json({ error: "product already exists" });
+    } else {
+      console.error(error);
+      res.status(500).json({ error: "Server error" });
+    }
+  }
+};
+
+const getFarmerProduct = async (req, res) => {
+  const product = await Products.find({ farmer: req.user.id });
+  if (!product.length)
+    return res.json({ message: "No product currently" }).status(200);
+  res.json({ product }).status(200);
+};
+
+const updateFarmerProduct = async (req, res) => {
+  try {
+    const productId = req.params.id;
+
+    if (!mongoose.Types.ObjectId.isValid(productId)) {
+      return res.status(400).json({ error: "Invalid product ID format" });
+    }
+
+    const product = await Products.findById(productId);
+    if (!product) {
+      return res.status(404).json({ error: "Product not found" });
+    }
+
+    // checks if farmer owns the product
+    if (product.farmer.toString() !== req.user.id) {
+      return res
+        .status(403)
+        .json({ error: "Not authorized to update this product" });
+    }
+
+    // Update only provided fields
+    if (req.body.price !== undefined) product.price = req.body.price;
+    if (req.body.inventory !== undefined)
+      product.inventory = req.body.inventory;
+
+    const updatedProduct = await product.save();
+
+    return res.status(200).json({ product: updatedProduct });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ error: "Failed to update product" });
+  }
+};
+
+const deleteFarmerProduct = async (req, res) => {
+  try {
+    const productId = req.params.id;
+
+    if (!mongoose.Types.ObjectId.isValid(productId)) {
+      return res.status(400).json({ error: "Invalid product ID format" });
+    }
+
+    const product = await Products.findById(productId);
+    if (!product) {
+      return res.status(404).json({ error: "Product not found" });
+    }
+
+    // Check if the farmer owns this product
+    if (product.farmer.toString() !== req.user.id) {
+      return res
+        .status(403)
+        .json({ error: "Not authorized to delete this product" });
+    }
+
+    await Products.findByIdAndDelete(productId);
+
+    return res.status(200).json({ message: "Product deleted successfully" });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ error: "Failed to delete product" });
+  }
+};
+
 module.exports = {
   createProduct,
   getProduct,
@@ -129,4 +226,8 @@ module.exports = {
   getSingleProduct,
   updateProduct,
   deleteProduct,
+  createFarmerProduct,
+  getFarmerProduct,
+  updateFarmerProduct,
+  deleteFarmerProduct,
 };

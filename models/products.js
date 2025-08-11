@@ -29,6 +29,11 @@ const ProductSchema = new mongoose.Schema(
     description: {
       type: String,
     },
+    farmer: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
   },
   { timestamps: true }
 );
@@ -52,6 +57,9 @@ const validateProduct = Joi.object({
     "number.base": "Inventory must be a number",
   }),
   description: Joi.string().allow("").optional(),
+  farmer: Joi.string().length(24).hex().required().messages({
+    "string.length": "Subcategory ID must be a valid ObjectId",
+  }),
 });
 
 const validateUpdateProduct = Joi.object({

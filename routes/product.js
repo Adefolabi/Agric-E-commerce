@@ -14,9 +14,14 @@ const {
   updateProduct,
   deleteProduct,
   getSingleProduct,
+  createFarmerProduct,
+  getFarmerProduct,
+  updateFarmerProduct,
+  deleteFarmerProduct,
 } = require("../controllers/product");
-// create product
-router.post("/", AUTH, Admin, validate(validateProduct), createProduct);
+const Farmer = require("../middleware/farmer");
+// // create product
+// router.post("/", AUTH, Admin, validate(validateProduct), createProduct);
 
 // get all product
 router.get("/", AUTH, getProduct);
@@ -33,5 +38,37 @@ router.put("/:id", AUTH, Admin, validate(validateUpdateProduct), updateProduct);
 
 // delete product
 router.delete("/:id", AUTH, Admin, deleteProduct);
+
+// Farmer routes
+// create product
+router.post(
+  "/farmer",
+  AUTH,
+  Farmer,
+  validate(validateProduct),
+  createFarmerProduct
+);
+
+// get own product
+router.get("/farmer", AUTH, Farmer, getFarmerProduct);
+
+// // search product
+// router.get("/farmer/search", searchProduct);
+
+// // get single product
+// router.get("/farmer/:id", AUTH, getSingleProduct);
+
+// update
+
+router.put(
+  "/farmer/:id",
+  AUTH,
+  Admin,
+  validate(validateUpdateProduct),
+  updateFarmerProduct
+);
+
+// delete product
+router.delete("/farmer/:id", AUTH, Admin, deleteFarmerProduct);
 
 module.exports = router;

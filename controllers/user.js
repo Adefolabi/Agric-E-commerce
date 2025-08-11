@@ -78,6 +78,12 @@ const updateUser = async (req, res) => {
     if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
       return res.status(400).send("Invalid product ID format");
     }
+    const userExists = await Users.findById(req.params.id);
+    if (!userExists) {
+      return res.status(404).send("User not found");
+    }
+    if (req.user !== userExists._id.toString() && req.user.role !== "admin")
+      return res.status(403).send("You are not authorized to update this user");
     const user = await Users.findByIdAndUpdate(
       req.params.id,
       {
@@ -90,10 +96,6 @@ const updateUser = async (req, res) => {
       },
       { new: true }
     );
-
-    if (!user) {
-      return res.status(404).send("User not found");
-    }
 
     res.status(200).send(user);
   } catch (error) {
@@ -119,6 +121,28 @@ const deleteUser = async (req, res) => {
   }
 };
 
+// update user role and status
+const updateUserRoleStatus = async (req, res) => {
+  try {
+    const { role, status } = req.body;
+    if (!role && !status) {
+      return res.status(400).json({ error: "No fields to update" });
+    }
+    const user = await Users.findByIdAndUpdate(
+      req.params.id,
+      { role, status },
+      { new: true }
+    );
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+    res.status(200).json(user);
+  } catch (error) {
+    console.error("Update error:", error);
+    res.status(500).json({ error: "Failed to update user" });
+  }
+};
+
 module.exports = {
   userLogin,
   createUser,
@@ -127,4 +151,5 @@ module.exports = {
   getSingleUser,
   updateUser,
   deleteUser,
+  updateUserRoleStatus,
 };
