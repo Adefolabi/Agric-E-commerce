@@ -1,6 +1,5 @@
 const express = require("express");
 const app = express();
-const jwt = require("jsonwebtoken");
 require("dotenv").config();
 const mongoose = require("mongoose");
 const userRouters = require("./routes/user");
@@ -8,6 +7,8 @@ const categoryRouters = require("./routes/category");
 const subcategoryRouters = require("./routes/subcategory");
 const productRouters = require("./routes/product");
 const cartRouter = require("./routes/cart");
+const adminDashboard = require("./routes/admin-dashboard");
+const orderRouter = require("./routes/order");
 
 // enviromental variables
 const PORT = process.env.PORT || 3000;
@@ -22,6 +23,8 @@ app.use(`${API_URL}/category`, categoryRouters);
 app.use(`${API_URL}/subcategory`, subcategoryRouters);
 app.use(`${API_URL}/products`, productRouters);
 app.use(`${API_URL}/cart`, cartRouter);
+app.use(`${API_URL}/admin`, adminDashboard);
+app.use(`${API_URL}/order`, orderRouter);
 
 // connects to db
 mongoose

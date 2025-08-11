@@ -1,11 +1,8 @@
 const express = require("express");
 const router = express.Router();
-const { Products } = require("../models/Products");
 const AUTH = require("../middleware/Auth");
-const Admin = require("../middleware/Admin");
 const validate = require("../middleware/Validate");
-const { mongoose } = require("mongoose");
-const { Cart, validateCart } = require("../models/cart");
+const {  validateCart } = require("../models/cart");
 const { createCart, getCart, clearCart, addItem, updateItem, removeItem } = require("../controllers/cart");
 
 // create cart

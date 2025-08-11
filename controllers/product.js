@@ -70,7 +70,7 @@ const searchProduct = async (req, res) => {
   }
 };
 
-const getsingleProduct = async (req, res) => {
+const getSingleProduct = async (req, res) => {
   try {
     const product = await Products.findById(req.params.id)
       .populate("category", "name")
@@ -126,7 +126,7 @@ module.exports = {
   createProduct,
   getProduct,
   searchProduct,
-  getsingleProduct,
+  getSingleProduct,
   updateProduct,
   deleteProduct,
 };
