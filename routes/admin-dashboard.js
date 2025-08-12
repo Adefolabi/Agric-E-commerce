@@ -45,7 +45,7 @@ const {
   validateSubcategory,
 } = require("../models/Subcategories");
 const { dashboardOverview } = require("../controllers/admin-dashboard");
-const { checkout, getAllOrders } = require("../controllers/order");
+const {  getOrderHistory, adminGetAllOrders, getOrder } = require("../controllers/order");
 
 // DASHBOARD OVERVIEW
 router.get("/dashboard", AUTH, Admin, dashboardOverview);
@@ -77,8 +77,13 @@ router.put(
   validate(validateUpdateUser),
   updateUserRoleStatus
 );
+
+
+
 // ORDER MANAGEMENT
-router.get("/:id", AUTH, Admin, getAllOrders);
+router.get("/", AUTH, Admin, adminGetAllOrders);
+router.get("/:id", AUTH, Admin, getOrder);
+router.get("/Admin/:id", AUTH, Admin, getOrderHistory);
 
 // PRODUCT MANAGEMENT
 // create product

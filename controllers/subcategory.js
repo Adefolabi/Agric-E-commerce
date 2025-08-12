@@ -22,7 +22,7 @@ const createSubcategory = async (req, res) => {
 };
 
 const getSubcategory = async (req, res) => {
-  const subcategories = await Subcategory.find();
+  const subcategories = await Subcategory.find().select("-createdAt -updatedAt -__v").populate("category","name");
   if (!subcategories.length)
     return res.json({ message: "No subcategories currently" }).status(200);
   res.status(200).json({ subcategories });

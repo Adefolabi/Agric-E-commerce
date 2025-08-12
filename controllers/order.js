@@ -75,7 +75,7 @@ const getOrder = async (req, res) => {
   }
 };
 
-const getAllOrders = async (req, res) => {
+const adminGetAllOrders = async (req, res) => {
   try {
     const orders = await Order.find().populate("user", "firstName lastName");
     if (!orders || orders.length === 0) {
@@ -86,5 +86,18 @@ const getAllOrders = async (req, res) => {
     console.error("Error fetching orders:", error);
     res.status(500).json({ message: "Server error" });
   }
-}
-module.exports = { checkout, getOrder,getAllOrders };
+};
+
+const getOrderHistory = async (req, res) => {
+  try {
+    const userId = req.params.Id;
+    const orders = await orders
+      .find({ user: userId })
+      .populate("items.productId", "name price")
+      .createdAt(-1);
+    if (!orders || orders.length === 0)
+      return res.status(404).json({ message: "No orders found" });
+    res.status(200).json(orders);
+  } catch (error) {}
+};
+module.exports = { checkout, getOrder, adminGetAllOrders, getOrderHistory };
