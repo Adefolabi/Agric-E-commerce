@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
-const {Cart} = require("../models/cart");
-const {Products} = require("../models/Products");
+const { Cart } = require("../models/cart");
+const { Products } = require("../models/Products");
 
 // create cart
 const createCart = async (req, res) => {
@@ -42,7 +42,6 @@ const createCart = async (req, res) => {
   return res.status(200).json({ message: "Cart already exists", cart });
 };
 
-
 // get cart
 const getCart = async (req, res) => {
   const userId = req.user.Id;
@@ -64,7 +63,6 @@ const clearCart = async (req, res) => {
   }
   res.status(200).json({ message: "cart cleared successfully" });
 };
-
 
 // add item to cart
 const addItem = async (req, res) => {
@@ -171,8 +169,7 @@ const updateItem = async (req, res) => {
   return res.status(200).json({ message: "Item quantity updated", cart });
 };
 
-
-// remove item from cart 
+// remove item from cart
 const removeItem = async (req, res) => {
   const errors = [];
 
@@ -215,7 +212,29 @@ const removeItem = async (req, res) => {
   await cart.save();
 
   return res.status(200).json({ message: "Item deleted", cart });
-}
+};
 
+// view all cart
+const viewAllCart = async (req, res) => {
+  try {
+    console.log(req.user.role);
+    if (req.user.role !== "Admin")
+      return res.status(403).json({ message: "Unauthorised to access carts" });
+    const carts = await Cart.find()
+      .populate("userId", "firstname")
+      .populate("item.productId", "name");
+    res.status(200).json({ carts });
+  } catch (error) {
+    res.status(404).json({ error: error.message });
+  }
+};
 
-module.exports = { createCart, getCart, clearCart, addItem ,updateItem,removeItem};
+module.exports = {
+  createCart,
+  getCart,
+  clearCart,
+  addItem,
+  updateItem,
+  removeItem,
+  viewAllCart,
+};

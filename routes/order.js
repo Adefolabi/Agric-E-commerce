@@ -17,6 +17,6 @@ router.get("/myHistory", AUTH, getOrderHistory);
 // ADMIN
 router.get("/admin", AUTH, Admin, adminGetAllOrders);
 router.get("/admin/:id", AUTH, Admin, getOrder);
-router.get("/admin/:id", AUTH, Admin, getOrderHistory);
+router.get("/history/admin/:id", AUTH, Admin, getOrderHistory);
 
 module.exports = router;

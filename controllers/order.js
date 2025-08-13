@@ -94,8 +94,17 @@ const getOrder = async (req, res) => {
     const userId = req.user.Id || req.user._id;
     const orderId = req.params.id;
     const orders = await Order.find({ user: userId, _id: orderId });
-    if (userId === orders.userId || req.user.role === "Admin")
-      return res.status(200).json({ orders });
+    if (!orders || orders.length === 0)
+      return res.status(404).json({ message: "No orders found" });
+    if (
+      req.user.role !== "Admin" &&
+      orders.some((order) => order.user._id.toString() !== userId)
+    ) {
+      return res
+        .status(403)
+        .json({ message: "Unauthorized to access order history" });
+    }
+    res.status(200).json({ orders });
   } catch (error) {
     res.status(500).json({ message: "Error fetching orders", error });
   }
@@ -116,12 +125,22 @@ const adminGetAllOrders = async (req, res) => {
 
 const getOrderHistory = async (req, res) => {
   try {
-    const userId = req.params.Id;
+    const userId = req.user.Id ;
     const orders = await Order.find({ user: userId })
       .populate("items.productId", "name price")
+      .populate("user", "email firstName");
+    console.log(orders.user);
     if (!orders || orders.length === 0)
-      return res.status(404).json({ message: "No orders found" });
-    res.status(200).json(orders);
+      return res.status(404).json({ message: "User has not made an order" });
+    if (
+      req.user.role !== "Admin" &&
+      orders.some((order) => order.user._id.toString() !== userId)
+    ) {
+      return res
+        .status(403)
+        .json({ message: "Unauthorized to access order history" });
+    }
+    res.status(200).json({ orders });
   } catch (error) {
     console.error("Error fetching orders:", error);
     res.status(500).json({ message: "Server error" });
