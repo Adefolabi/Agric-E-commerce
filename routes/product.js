@@ -48,6 +48,8 @@ router.post(
   validate(validateProduct),
   createFarmerProduct
 );
+// delete product
+router.delete("/farmer/:id", AUTH, Admin, deleteFarmerProduct);
 
 // get own product
 router.get("/farmer", AUTH, Farmer, getFarmerProduct);
@@ -67,8 +69,23 @@ router.put(
   validate(validateUpdateProduct),
   updateFarmerProduct
 );
-
+// ADMIN
+// update
+router.put(
+  "/admin/:id",
+  AUTH,
+  Admin,
+  validate(validateUpdateProduct),
+  updateProduct
+); // create product
+router.post(
+  "/admin",
+  AUTH,
+  Admin,
+  validate(validateProduct),
+  createProduct
+);
 // delete product
-router.delete("/farmer/:id", AUTH, Admin, deleteFarmerProduct);
+router.delete("/product/:id", AUTH, Admin, deleteProduct);
 
 module.exports = router;

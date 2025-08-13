@@ -30,7 +30,7 @@ const getSingleCategory = async (req, res) => {
   if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
     return res.status(400).send("Invalid product ID format");
   }
-  const category = await Category.findById(req.params._id);
+  const category = await Category.findById(req.params.id);
   if (!category) return res.send("no category with that id ").status(404);
   res.status(200).send(category);
 };

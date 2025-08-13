@@ -6,11 +6,25 @@ const hashFunction = async (password) => {
   return hashPassword;
 };
 
-const searchFunction = async (search ,query) => {
+const searchFunction = async (search, query) => {
   const regex = new RegExp(search, "i");
-  return (query = { $or: [{ name: regex },{ firstName: regex },{ lastName: regex }, { email: regex },{ description: regex }] });
+  return (query = {
+    $or: [
+      { name: regex },
+      { firstName: regex },
+      { lastName: regex },
+      { email: regex },
+      { description: regex },
+    ],
+  });
 };
 
+const formatDate = function formatDate(date) {
+  return date.toLocaleDateString("en-GB", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  });
+};
 
-
-module.exports = { hashFunction ,searchFunction};
+module.exports = { hashFunction, searchFunction, formatDate };

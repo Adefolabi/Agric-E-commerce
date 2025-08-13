@@ -77,7 +77,7 @@ const validateUser = Joi.object({
     }),
   password: Joi.string().min(6).required(),
   role: Joi.string().valid("Admin", "Farmer", "User").required(),
-  status: Joi.string().valid("Active", "Inactive", "Banned").required(),
+  status: Joi.string().valid("Active", "Inactive", "Banned").optional(),
   farmerDetails: Joi.when("role", {
     is: "Farmer",
     then: Joi.object({

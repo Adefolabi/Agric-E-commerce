@@ -9,6 +9,7 @@ const productRouters = require("./routes/product");
 const cartRouter = require("./routes/cart");
 const adminDashboard = require("./routes/admin-dashboard");
 const orderRouter = require("./routes/order");
+const authRouter = require("./routes/Auth");
 
 // enviromental variables
 const PORT = process.env.PORT || 3000;
@@ -19,12 +20,13 @@ app.use(express.json());
 
 // routes
 app.use(`${API_URL}/users`, userRouters);
-app.use(`${API_URL}/category`, categoryRouters);
-app.use(`${API_URL}/subcategory`, subcategoryRouters);
+app.use(`${API_URL}/categories`, categoryRouters);
+app.use(`${API_URL}/subcategories`, subcategoryRouters);
 app.use(`${API_URL}/products`, productRouters);
-app.use(`${API_URL}/cart`, cartRouter);
+app.use(`${API_URL}/carts`, cartRouter);
 app.use(`${API_URL}/admin`, adminDashboard);
-app.use(`${API_URL}/order`, orderRouter);
+app.use(`${API_URL}/orders`, orderRouter);
+app.use(`${API_URL}/auth`, authRouter);
 
 // connects to db
 mongoose
