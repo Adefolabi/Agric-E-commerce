@@ -78,13 +78,7 @@ router.put(
   validate(validateUpdateProduct),
   updateProduct
 ); // create product
-router.post(
-  "/admin",
-  AUTH,
-  Admin,
-  validate(validateProduct),
-  createProduct
-);
+router.post("/admin", AUTH, Admin, validate(validateProduct), createProduct);
 // delete product
 router.delete("/product/:id", AUTH, Admin, deleteProduct);
 
